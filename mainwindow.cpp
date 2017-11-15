@@ -35,13 +35,21 @@ void MainWindow::on_startButton_clicked()
         if (q) {
             Node *qNearest = rrtstar->nearest(q->position);
             if (rrtstar->distance(q->position, qNearest->position) > rrtstar->step_size) {
-                Vector2f newConfig = rrtstar->newConfig(q, qNearest);
-                if (!rrtstar->obstacles->isSegmentInObstacle(newConfig, qNearest->position)) {
+                Vector3f newConfigPosOrient;
+                DubinsPath path;
+                if (BOT_FOLLOW_DUBIN)
+                    newConfigPosOrient = rrtstar->newDubinConfig(q, qNearest, path);
+                else
+                    newConfigPosOrient = rrtstar->newConfig(q, qNearest);
+                Vector2f newConfigPos(newConfigPosOrient.x(), newConfigPosOrient.y());
+                if (!rrtstar->obstacles->isSegmentInObstacle(newConfigPos, qNearest->position)) {
                     Node *qNew = new Node;
-                    qNew->position = newConfig;
+                    qNew->position = newConfigPos;
+                    qNew->orientation = newConfigPosOrient.z();
+                    qNew->path = path;
 
                     vector<Node *> Qnear;
-                    rrtstar->near(qNew->position, rrtstar->step_size*3, Qnear);
+                    rrtstar->near(qNew->position, rrtstar->step_size*RRTSTAR_NEIGHBOR_FACTOR, Qnear);
                     qDebug() << "Found Nearby " << Qnear.size() << "\n";
                     Node *qMin = qNearest;
                     double cmin = rrtstar->Cost(qNearest) + rrtstar->PathCost(qNearest, qNew);

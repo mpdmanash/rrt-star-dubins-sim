@@ -2,6 +2,7 @@
 #define RRTSTAR_H
 
 #include "obstacles.h"
+#include "dubins.h"
 #include <stdlib.h>
 #include <vector>
 #include <math.h>
@@ -13,7 +14,9 @@ struct Node {
     vector<Node *> children;
     Node *parent;
     Vector2f position;
+    float orientation;
     double cost;
+    DubinsPath path;
 };
 
 class RRTSTAR
@@ -27,7 +30,8 @@ public:
     double distance(Vector2f &p, Vector2f &q);
     double Cost(Node *q);
     double PathCost(Node *qFrom, Node *qTo);
-    Vector2f newConfig(Node *q, Node *qNearest);
+    Vector3f newConfig(Node *q, Node *qNearest);
+    Vector3f newDubinConfig(Node *q, Node *qNearest, DubinsPath &path);
     void add(Node *qNearest, Node *qNew);
     bool reached();
     void setStepSize(int step);

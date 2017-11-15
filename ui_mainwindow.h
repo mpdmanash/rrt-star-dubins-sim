@@ -99,7 +99,7 @@ public:
 "</style></head><body style=\" font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Draw obstacles by clicking and dragging on the field.</p></body></html>", Q_NULLPTR));
         stepSizeLabel->setText(QApplication::translate("MainWindow", "Step Size", Q_NULLPTR));
-        stepSize->setText(QApplication::translate("MainWindow", "3", Q_NULLPTR));
+        stepSize->setText(QApplication::translate("MainWindow", "18", Q_NULLPTR));
         label->setText(QApplication::translate("MainWindow", "Max Iterations", Q_NULLPTR));
         maxIterations->setText(QApplication::translate("MainWindow", "3000", Q_NULLPTR));
         label_2->setText(QApplication::translate("MainWindow", "Status", Q_NULLPTR));

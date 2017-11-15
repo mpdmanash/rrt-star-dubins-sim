@@ -10,10 +10,11 @@ RRTSTAR::RRTSTAR()
     root = new Node;
     root->parent = NULL;
     root->position = startPos;
+    root->orientation = START_ORIENT;
     root->cost = 0.0;
     lastNode = root;
     nodes.push_back(root);
-    step_size = 3;
+    step_size = 18;
     max_iter = 3000;
 }
 
@@ -25,6 +26,7 @@ void RRTSTAR::initialize()
     root = new Node;
     root->parent = NULL;
     root->position = startPos;
+    root->orientation = START_ORIENT;
     root->cost = 0.0;
     lastNode = root;
     nodes.push_back(root);
@@ -38,9 +40,11 @@ Node* RRTSTAR::getRandomNode()
 {
     Node* ret;
     Vector2f point(drand48() * WORLD_WIDTH, drand48() * WORLD_HEIGHT);
-    if (point.x() >= 0 && point.x() <= WORLD_WIDTH && point.y() >= 0 && point.y() <= WORLD_HEIGHT) {
+    float orient = drand48() * 2 * 3.142;
+    if (point.x() >= 0 && point.x() <= WORLD_WIDTH && point.y() >= 0 && point.y() <= WORLD_HEIGHT && orient > 0 && orient < 2*3.142) {
         ret = new Node;
         ret->position = point;
+        ret->orientation = orient;
         return ret;
     }
     return NULL;
@@ -100,13 +104,33 @@ void RRTSTAR::near(Vector2f point, float radius, vector<Node *>& out_nodes)
  * @param qNearest
  * @return
  */
-Vector2f RRTSTAR::newConfig(Node *q, Node *qNearest)
+Vector3f RRTSTAR::newConfig(Node *q, Node *qNearest)
 {
     Vector2f to = q->position;
     Vector2f from = qNearest->position;
     Vector2f intermediate = to - from;
     intermediate = intermediate / intermediate.norm();
-    Vector2f ret = from + step_size * intermediate;
+    Vector2f pos = from + step_size * intermediate;
+    Vector3f ret(pos.x(), pos.y(), 0.0);
+    return ret;
+}
+
+/**
+ * @brief Find a configuration at a distance step_size from nearest node to random node
+ * followin dynamic constraints of a nonholonomic robot (Dubins motion model).
+ * @param q
+ * @param qNearest
+ * @return
+ */
+Vector3f RRTSTAR::newDubinConfig(Node *q, Node *qNearest, DubinsPath &path)
+{
+    double q0[] = { qNearest->position.x(), -qNearest->position.y(), qNearest->orientation };
+    double q1[] = { q->position.x(), -q->position.y(), q->orientation };
+    double turning_radius = BOT_TURN_RADIUS;
+    dubins_init( q0, q1, turning_radius, &path);
+    double qIntermediate[3] = {0};
+    dubins_path_sample(&path, step_size, qIntermediate);
+    Vector3f ret (qIntermediate[0], -qIntermediate[1], qIntermediate[2]);
     return ret;
 }
 

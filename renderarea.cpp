@@ -85,27 +85,55 @@ void RenderArea::drawNodes(QPainter &painter)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::black);
     painter.setBrush(QBrush(Qt::black));
-    Vector2f pos;
+    Vector2f pos; double dubinspos1[3] = {0}; double dubinspos2[3] = {0};
     for(int i = 0; i < (int)rrtstar->nodes.size(); i++) {
-        Vector2f parentpos = rrtstar->nodes[i]->position;
-        for(int j = 0; j < (int)rrtstar->nodes[i]->children.size(); j++) {
-            pos = rrtstar->nodes[i]->children[j]->position;
-            painter.drawEllipse(pos.x()-1.5, pos.y()-1.5, 3, 3);
-            QPointF p1(parentpos.x(), parentpos.y());
-            QPointF p2(pos.x(), pos.y());
-            painter.drawLine(p1, p2);
+        if(!BOT_FOLLOW_DUBIN){
+            Vector2f parentpos = rrtstar->nodes[i]->position;
+            for(int j = 0; j < (int)rrtstar->nodes[i]->children.size(); j++) {
+                pos = rrtstar->nodes[i]->children[j]->position;
+                painter.drawEllipse(pos.x()-1.5, pos.y()-1.5, 3, 3);
+                QPointF p1(parentpos.x(), parentpos.y());
+                QPointF p2(pos.x(), pos.y());
+                painter.drawLine(p1, p2);
+            }
         }
         pos = rrtstar->nodes[i]->position;
         painter.drawEllipse(pos.x() - NODE_RADIUS, pos.y() - NODE_RADIUS, 2 * NODE_RADIUS, 2 * NODE_RADIUS);
+
+        if(BOT_FOLLOW_DUBIN){
+            dubins_path_sample(&rrtstar->nodes[i]->path, 0, dubinspos1);
+            for(int j=1; j<rrtstar->step_size; j++){
+                dubins_path_sample(&rrtstar->nodes[i]->path, j, dubinspos2);
+                QPointF p1(dubinspos1[0], -dubinspos1[1]);
+                QPointF p2(dubinspos2[0], -dubinspos2[1]);
+                painter.drawLine(p1, p2);
+                dubinspos1[0] = dubinspos2[0];
+                dubinspos1[1] = dubinspos2[1];
+            }
+        }
     }
     painter.setPen(Qt::red);
     painter.setBrush(QBrush(Qt::red));
 
     // if a path exists, draw it.
     for(int i = 0; i < (int)rrtstar->path.size() - 1; i++) {
-        QPointF p1(rrtstar->path[i]->position.x(), rrtstar->path[i]->position.y());
-        QPointF p2(rrtstar->path[i+1]->position.x(), rrtstar->path[i+1]->position.y());
-        painter.drawLine(p1, p2);
+        if(BOT_FOLLOW_DUBIN){
+            dubins_path_sample(&rrtstar->path[i+1]->path, 0, dubinspos1);
+            for(int j=1; j<rrtstar->step_size; j++){
+                dubins_path_sample(&rrtstar->path[i+1]->path, j, dubinspos2);
+                QPointF p1(dubinspos1[0], -dubinspos1[1]);
+                QPointF p2(dubinspos2[0], -dubinspos2[1]);
+                painter.drawLine(p1, p2);
+                dubinspos1[0] = dubinspos2[0];
+                dubinspos1[1] = dubinspos2[1];
+            }
+        }
+        else{
+            QPointF p1(rrtstar->path[i]->position.x(), rrtstar->path[i]->position.y());
+            QPointF p2(rrtstar->path[i+1]->position.x(), rrtstar->path[i+1]->position.y());
+            painter.drawLine(p1, p2);
+        }
+
     }
     painter.restore();
 }

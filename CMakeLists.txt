@@ -23,5 +23,5 @@ include_directories(
   ${CUSTOM_EIGEN}
 )
 
-add_executable(rrt-test main.cpp mainwindow.cpp obstacles.cpp renderarea.cpp rrtstar.cpp)
-target_link_libraries(rrt-test Qt5::Widgets Qt5::Gui)
+add_executable(motion-planning-demo main.cpp mainwindow.cpp obstacles.cpp renderarea.cpp rrtstar.cpp dubins.cpp)
+target_link_libraries(motion-planning-demo Qt5::Widgets Qt5::Gui)
