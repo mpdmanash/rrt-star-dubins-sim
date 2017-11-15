@@ -21,7 +21,8 @@ $ ./bin/motion-planning-demo
 Example of an RRT* motion plan    
 
 ![RRT with Dubins steering function Simulator](imgs/rrtdubins-sim.png)    
-Example of an RRT motion plan for Dubins Nonholonomic Robot.    
+Path planning by RRT can also address the vehicle dynamic constraints (eg, turn radius)    
+Thus, the above is an example of a dynamically feasible RRT motion plan for Nonholonomic Robot following Dubins motion model.    
 
 Thanks to:    
 RRT simulator: https://github.com/sourishg/rrt-simulator   
